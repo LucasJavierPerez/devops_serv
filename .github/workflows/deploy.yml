@@ -1,29 +1,21 @@
-name: Deploy
+name: CD - Deploy con Git Pull
 
 on:
-  workflow_run:
-    workflows: [ "CI" ]
-    types: [ "completed" ]
-    branches: [ "main" ]
+  push:
+    branches: [ main ]
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-
     steps:
-      - name: Conectarse por SSH y hacer git pull
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            set -e
-            cd ~/lemp-sites/nombre_apellido
-            git pull
-            # Opcional según tu proyecto:
-            # npm ci --omit=dev
-            # pm2 reload app || true
-            # systemctl --user restart tu-servicio || true
+      - name: Conectarse al servidor y hacer git pull
+        run: |
+          ssh -o StrictHostKeyChecking=no usuario@IP_DEL_SERVIDOR "
+            cd ~/lemp-sites/nombre_apellido &&
+            git pull origin main
+          "
+        env:
+          # GitHub buscará este secreto para autenticarse vía SSH
+          # El secreto debe contener la clave privada ya configurada
+          # El servidor debe tener la clave pública en ~/.ssh/authorized_keys
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
