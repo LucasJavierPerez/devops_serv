@@ -7,7 +7,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Conectarse al servidor y hacer git pull
         uses: appleboy/ssh-action@v1.2.0
@@ -17,5 +16,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            set -e
             cd ~/lemp-sites/nombre_apellido
             git pull origin main
