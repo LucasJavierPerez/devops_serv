@@ -17,5 +17,5 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             set -e
-            cd ~/lemp-sites/nombre_apellido
+            cd ~/lemp-sites/lucas_perez
             git pull origin main
