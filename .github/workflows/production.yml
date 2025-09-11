@@ -42,11 +42,11 @@ jobs:
       - name: Ensure remote dir exists (production)
         run: |
           ssh -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-            "mkdir -p ~/lemp-sites/${{ secrets.SITE_DIR }}/production"
+            "mkdir -p ~/lemp-sites/lucas_perez/production"
 
       - name: Deploy to PRODUCTION
         run: rsync -az --delete \
               --exclude ".git" --exclude ".github" --exclude "node_modules" \
               -e "ssh -p ${{ secrets.SSH_PORT }}" \
-              ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/lemp-sites/${{ secrets.SITE_DIR }}/production/"
+              ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/lemp-sites/lucas_perez/production/"
 
