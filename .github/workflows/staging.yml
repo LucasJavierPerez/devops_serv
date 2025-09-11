@@ -24,7 +24,7 @@ jobs:
       - name: Test SSH connectivity (verbose)
         run: |
           ssh -vvv -p "${{ secrets.SSH_PORT }}" \
-            -o IdentitiesOnly=yes \
+          
             -o StrictHostKeyChecking=no \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'echo OK desde GitHub Actions'
 
@@ -46,5 +46,5 @@ jobs:
             --exclude ".git" \
             --exclude ".github" \
             --exclude "node_modules" \
-            -e "ssh -p ${{ secrets.SSH_PORT }} -o IdentitiesOnly=yes" \
+            -e "ssh -p ${{ secrets.SSH_PORT }}" \
             ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/lemp-sites/${{ secrets.SITE_DIR }}/staging/"
