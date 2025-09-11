@@ -20,12 +20,13 @@ jobs:
       - name: List loaded SSH keys
         run: ssh-add -L || echo "No keys loaded"
 
-      - name: Test SSH connectivity (verbose)
+      - name: Test SSH connectivity
         run: |
-          ssh -vvv -p "${{ secrets.SSH_PORT }}" \
-            
+          ssh -vvv \
+            -p "${{ secrets.SSH_PORT }}" \
             -o StrictHostKeyChecking=no \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'echo OK desde GitHub Actions'
+
 
       - name: Trust server host key
         run: |
