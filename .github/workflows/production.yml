@@ -3,26 +3,36 @@ name: Deploy Production
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch: {}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Prepare SSH
+      - name: Start ssh-agent and add key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Trust server host key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Deploy to PRODUCTION via rsync
+      - name: Test SSH connectivity
+        run: |
+          ssh -p "${{ secrets.SSH_PORT }}" \
+              -o StrictHostKeyChecking=no \
+              "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'echo OK desde GitHub Actions'
+
+      - name: Deploy to PRODUCTION
         run: |
           rsync -az --delete \
             --exclude ".git" \
             --exclude ".github" \
-            -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT }}" \
+            --exclude "node_modules" \
+            -e "ssh -p ${{ secrets.SSH_PORT }} -o IdentitiesOnly=yes" \
             ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/lemp-sites/${{ secrets.SITE_DIR }}/production/"
