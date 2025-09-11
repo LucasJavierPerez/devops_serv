@@ -20,3 +20,7 @@ jobs:
         run: ssh -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "mkdir -p ~/lemp-sites/${{ secrets.SITE_DIR }}/staging"
       - name: Deploy to STAGING
         run: rsync -az --delete --exclude ".git" --exclude ".github" --exclude "node_modules" -e "ssh -p ${{ secrets.SSH_PORT }}" ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/lemp-sites/${{ secrets.SITE_DIR }}/staging/"
+      - name: Write deploy log (staging)
+        run: |
+          ssh -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "echo 'Deploy a STAGING en $(date) - commit $GITHUB_SHA' >> ~/lemp-sites/${{ secrets.SITE_DIR }}/staging/deploy.log"
