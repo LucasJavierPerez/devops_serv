@@ -1,5 +1,4 @@
 name: Deploy Production
-
 on:
   push:
     branches: [ "main" ]
@@ -9,49 +8,21 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Start ssh-agent and add key
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
-    
-      - name: List loaded SSH keys
-        run: ssh-add -L || echo "No keys loaded"
-
-      - name: Test SSH connectivity
-        run: |
-          ssh -vvv \
-            -p "${{ secrets.SSH_PORT }}" \
-            -o StrictHostKeyChecking=no \
-            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'echo OK desde GitHub Actions'
-
 
       - name: Trust server host key
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Test SSH connectivity
-        run: |
-          ssh -p "${{ secrets.SSH_PORT }}" \
-              -o StrictHostKeyChecking=no \
-              "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'echo OK desde GitHub Actions'
-
       - name: Ensure remote dir exists (production)
-        run: |
-          ssh -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-            "mkdir -p ~/lemp-sites/lucas_perez/production"
-
+        run: ssh -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "mkdir -p ~/lemp-sites/${{ secrets.SITE_DIR }}/production"
 
       - name: Deploy to PRODUCTION
-        run: |
-          rsync -az --delete
-            --exclude ".git"
-            --exclude ".github"
-            --exclude "node_modules"
-            -e "ssh -p ${{ secrets.SSH_PORT }}"
-            ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/lemp-sites/lucas_perez/production/"
-
-
+        run: rsync -az --delete --exclude ".git" --exclude ".github" --exclude "node_modules" -e "ssh -p ${{ secrets.SSH_PORT }}" ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/lemp-sites/${{ secrets.SITE_DIR }}/production/"
