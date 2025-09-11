@@ -16,6 +16,16 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
+    
+      - name: List loaded SSH keys
+        run: ssh-add -L || echo "No keys loaded"
+
+      - name: Test SSH connectivity (verbose)
+        run: |
+          ssh -vvv -p "${{ secrets.SSH_PORT }}" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'echo OK desde GitHub Actions'
 
       - name: Trust server host key
         run: |
