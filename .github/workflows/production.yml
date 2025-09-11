@@ -39,11 +39,14 @@ jobs:
               -o StrictHostKeyChecking=no \
               "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'echo OK desde GitHub Actions'
 
-      - name: Deploy to PRODUCTION
+      - name: Ensure remote dir exists (production)
         run: |
-          rsync -az --delete \
-            --exclude ".git" \
-            --exclude ".github" \
-            --exclude "node_modules" \
-            -e "ssh -p ${{ secrets.SSH_PORT }}"\
-            ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/lemp-sites/${{ secrets.SITE_DIR }}/production/"
+          ssh -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "mkdir -p ~/lemp-sites/${{ secrets.SITE_DIR }}/production"
+
+      - name: Deploy to PRODUCTION
+        run: rsync -az --delete \
+              --exclude ".git" --exclude ".github" --exclude "node_modules" \
+              -e "ssh -p ${{ secrets.SSH_PORT }}" \
+              ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/lemp-sites/${{ secrets.SITE_DIR }}/production/"
+
